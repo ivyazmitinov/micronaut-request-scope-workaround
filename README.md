@@ -1,0 +1,1 @@
+Start app and curl to `/test` with APP_NAME header
