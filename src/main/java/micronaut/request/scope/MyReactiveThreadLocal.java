@@ -1,15 +1,16 @@
 package micronaut.request.scope;
 
-public class RequestMetadata
+@ReactiveThreadLocal
+public class MyReactiveThreadLocal
 {
 
     private String appName;
 
-    public RequestMetadata()
+    public MyReactiveThreadLocal()
     {
     }
 
-    public RequestMetadata(String appName)
+    public MyReactiveThreadLocal(String appName)
     {
         this.appName = appName;
     }

@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.inject.Inject;
 
@@ -17,18 +18,27 @@ public class TestController
 {
     private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
     @Inject
-    CustomContext<RequestMetadata> customContext;
+    MyReactiveThreadLocal myReactiveThreadLocal;
 
     @Get("/test")
-    public Mono<MutableHttpResponse<String>> test()
+    public Mono<MutableHttpResponse<?>> test()
     {
-        return Mono.subscriberContext()
-                   .doOnNext(c -> LOG.info(c.get(RequestMetadata.class).getAppName()))
-                   .map(c -> {
-                       // Very important logic
-                       return HttpResponse.ok(c.get(RequestMetadata.class).getAppName());
-                   })
-                   .subscriberContext(c -> c.put(RequestMetadata.class, customContext.currentContext().get()
-                                                                            .getAppName()));
+        return Mono.just(1)
+                   .flatMap(ignored ->
+                                Mono.just(1)
+                                    .doOnNext(l -> logFromContext())
+                                    .flatMap(ignored2 ->
+                                                 Mono.just(2)
+                                                     .doOnNext(l -> logFromContext())
+                                                     .subscribeOn(Schedulers.elastic()))
+                                    .doOnNext(l -> logFromContext())
+                                    .subscribeOn(Schedulers.elastic()))
+                   .doOnNext(l -> logFromContext())
+                   .map(HttpResponse::ok);
+    }
+
+    private void logFromContext()
+    {
+        LOG.info(myReactiveThreadLocal.getAppName());
     }
 }

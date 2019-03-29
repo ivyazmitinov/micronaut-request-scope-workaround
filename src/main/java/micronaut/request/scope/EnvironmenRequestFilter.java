@@ -18,14 +18,14 @@ public class EnvironmenRequestFilter implements HttpFilter
     private static final String ERROR_MESSAGE = String.format("%s Header not specified", APP_NAME_HEADER);
 
     @Inject
-    private CustomContext<RequestMetadata> customContext;
+    private MyReactiveThreadLocal myReactiveThreadLocal;
 
     @Override
     public Publisher<? extends HttpResponse<?>> doFilter(HttpRequest<?> request, FilterChain chain)
     {
 
         return Mono.fromCallable(() -> request.getHeaders().get(APP_NAME_HEADER))
-                   .doOnNext(s -> customContext.currentContext().get().setAppName(s))
+                   .doOnNext(s -> myReactiveThreadLocal.setAppName(s))
                    .switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException(ERROR_MESSAGE))))
                    .flatMapMany(s -> chain.proceed(request));
     }
