@@ -19,19 +19,14 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.0.4'
+        mavenBom 'io.micronaut:micronaut-bom:1.1.0.RC1'
     }
 }
 
 dependencies {
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    annotationProcessor "io.micronaut:micronaut-validation"
-    compile "io.micronaut:micronaut-http-client"
-    compile "io.micronaut:micronaut-http-server-netty"
-    compile "io.micronaut:micronaut-inject"
-    compile "io.micronaut:micronaut-validation"
-    compile "io.micronaut:micronaut-runtime"
-    compileOnly "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-inject-java:1.1.0.RC1"
+    compile "io.micronaut:micronaut-http-server-netty:1.1.0.RC1"
+    compileOnly "io.micronaut:micronaut-inject-java:1.1.0.RC1"
     runtime "ch.qos.logback:logback-classic:1.2.3"
     testCompile "junit:junit:4.12"
     testCompile "io.micronaut:micronaut-inject-java"
