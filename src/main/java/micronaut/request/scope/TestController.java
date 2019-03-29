@@ -1,5 +1,6 @@
 package micronaut.request.scope;
 
+import io.micronaut.context.annotation.Context;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
@@ -10,12 +11,13 @@ import reactor.core.publisher.Mono;
 
 import javax.inject.Inject;
 
+@Context
 @Controller
 public class TestController
 {
     private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
     @Inject
-    private RequestMetadata requestMetadata;
+    CustomContext<RequestMetadata> customContext;
 
     @Get("/test")
     public Mono<MutableHttpResponse<String>> test()
@@ -26,6 +28,7 @@ public class TestController
                        // Very important logic
                        return HttpResponse.ok(c.get(RequestMetadata.class).getAppName());
                    })
-                   .subscriberContext(c -> c.put(RequestMetadata.class, requestMetadata));
+                   .subscriberContext(c -> c.put(RequestMetadata.class, customContext.currentContext().get()
+                                                                            .getAppName()));
     }
 }

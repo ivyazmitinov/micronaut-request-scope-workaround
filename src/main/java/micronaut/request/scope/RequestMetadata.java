@@ -1,8 +1,5 @@
 package micronaut.request.scope;
 
-import io.micronaut.runtime.context.scope.ThreadLocal;
-
-@ThreadLocal
 public class RequestMetadata
 {
 

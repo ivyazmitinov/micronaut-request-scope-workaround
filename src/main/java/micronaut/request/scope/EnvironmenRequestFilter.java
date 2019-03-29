@@ -1,6 +1,5 @@
 package micronaut.request.scope;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Filter;
@@ -19,25 +18,15 @@ public class EnvironmenRequestFilter implements HttpFilter
     private static final String ERROR_MESSAGE = String.format("%s Header not specified", APP_NAME_HEADER);
 
     @Inject
-    private ApplicationContext appContext;
+    private CustomContext<RequestMetadata> customContext;
 
     @Override
     public Publisher<? extends HttpResponse<?>> doFilter(HttpRequest<?> request, FilterChain chain)
     {
 
-        final String appName = request.getHeaders().get(APP_NAME_HEADER);
-        return Mono.fromCallable(() -> appName)
+        return Mono.fromCallable(() -> request.getHeaders().get(APP_NAME_HEADER))
+                   .doOnNext(s -> customContext.currentContext().get().setAppName(s))
                    .switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException(ERROR_MESSAGE))))
-                   .flatMapMany(s ->
-                                    // Workaround
-                                    // doOnNext should be called on the same thread as controller's method
-                                    Mono.just(0)
-                                        .doOnNext(l -> prepareRequestMetadata(appName))
-                                        .flatMapMany(l -> chain.proceed(request)));
-    }
-
-    private void prepareRequestMetadata(String appName)
-    {
-        appContext.getBean(RequestMetadata.class).setAppName(appName);
+                   .flatMapMany(s -> chain.proceed(request));
     }
 }
